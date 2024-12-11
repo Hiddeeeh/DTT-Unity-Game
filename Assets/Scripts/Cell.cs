@@ -5,6 +5,7 @@ using UnityEngine;
 //the cell class will be used to define the propertys of the maze cells
 public class Cell
 {
+    public bool visited = false;
     public bool topWall = true;
     public bool bottomWall = true;
     public bool leftWall = true;
