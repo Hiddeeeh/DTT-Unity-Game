@@ -8,17 +8,21 @@ public class MazeGenerator : MonoBehaviour
     //define width and height grid
     public int width = 10; //for now predefined, changeable later
     public int height = 10;
+
+    private GameObject mazeParent;
     public GameObject wallPrefab;
     public GameObject floorPrefab;
+    public Camera mainCamera;
     private Cell[,] grid;
+
+    private Vector2Int startPoint;
+    private Vector2Int endPoint;
+
     void Start()
     {
         InitialGrid();
         GenerateMaze();
-        PrintGrid();
         DrawMaze();
-
-
     }
 
     void InitialGrid()
@@ -32,16 +36,18 @@ public class MazeGenerator : MonoBehaviour
                 grid[x, y] = new Cell();
             }
         }
-        Debug.Log("Grid has " + width + " x " + height + " cells");
     }
 
     void GenerateMaze()
     {
         //Depth-first search algorithm
         Stack<Vector2Int> stack = new Stack<Vector2Int>();
-        Vector2Int current = new Vector2Int(0, 0); //start at top left
-        grid[current.x, current.y].visited = true;
 
+        startPoint = new Vector2Int(0, 0); //start at top left
+        endPoint = new Vector2Int(width - 1, height - 1); //end at the bottom right
+
+        Vector2Int current = startPoint;
+        grid[current.x, current.y].visited = true;
 
         do
         {
@@ -50,10 +56,10 @@ public class MazeGenerator : MonoBehaviour
             if (neighbors.Count > 0)
             {
                 Vector2Int chosen = neighbors[Random.Range(0, neighbors.Count)];
-                RemoveWallBetween(current, chosen);
+                RemoveWallBetween(current, chosen); //remove the wall between the cells
                 stack.Push(current);
                 current = chosen;
-                grid[current.x, current.y].visited = true;
+                grid[current.x, current.y].visited = true;//set the current cell to visited
             }
             else if (stack.Count > 0)
             {
@@ -94,13 +100,11 @@ public class MazeGenerator : MonoBehaviour
             {
                 grid[a.x, a.y].bottomWall = false;
                 grid[b.x, b.y].topWall = false;
-                Debug.Log("Wall removed");
             }
             else //a is above b
             {
                 grid[a.x, a.y].topWall = false;
                 grid[b.x, b.y].bottomWall = false;
-                Debug.Log("Wall removed");
             }
         }
         else if (a.y == b.y) //horizontally aligned
@@ -109,57 +113,88 @@ public class MazeGenerator : MonoBehaviour
             {
                 grid[a.x, a.y].leftWall = false;
                 grid[b.x, b.y].rightWall = false;
-                Debug.Log("Wall removed");
             }
             else //a is to the right of b
             {
                 grid[a.x, a.y].rightWall = false;
                 grid[b.x, b.y].leftWall = false;
-                Debug.Log("Wall removed");
             }
         }
     }
 
     void DrawMaze()
     {
+        //destroy any existing parent object
+        if (mazeParent != null)
+        {
+            Destroy(mazeParent);
+        }
+
+        mazeParent = new GameObject("Maze");
+
+        grid[startPoint.x, startPoint.y].leftWall = false;  // Open the left wall at the start
+        grid[endPoint.x, endPoint.y].rightWall = false;    // Open the right wall at the end
+
+
+        //check if the walls should be placed based on true or false bools
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
                 Vector3 pos = new Vector3(x, 0, y);
-                Instantiate(floorPrefab, pos, Quaternion.identity);
+                GameObject floor = Instantiate(floorPrefab, pos, Quaternion.identity);
+                floor.transform.SetParent(mazeParent.transform);
 
                 if (grid[x, y].topWall == true)
                 {
-                    Instantiate(wallPrefab, pos + Vector3.forward * 0.5f, Quaternion.identity);
+                    GameObject wall = Instantiate(wallPrefab, pos + Vector3.forward * 0.5f, Quaternion.identity);
+                    wall.transform.SetParent(mazeParent.transform);
                 }
                 if (grid[x, y].bottomWall == true)
                 {
-                    Instantiate(wallPrefab, pos - Vector3.forward * 0.5f, Quaternion.identity);
+                    GameObject wall = Instantiate(wallPrefab, pos - Vector3.forward * 0.5f, Quaternion.identity);
+                    wall.transform.SetParent(mazeParent.transform);
                 }
                 if (grid[x, y].leftWall == true)
                 {
-                    Instantiate(wallPrefab, pos - Vector3.right * 0.5f, Quaternion.Euler(0, 90, 0));
+                    GameObject wall = Instantiate(wallPrefab, pos - Vector3.right * 0.5f, Quaternion.Euler(0, 90, 0));
+                    wall.transform.SetParent(mazeParent.transform);
                 }
                 if (grid[x, y].rightWall == true)
                 {
-                    Instantiate(wallPrefab, pos + Vector3.right * 0.5f, Quaternion.Euler(0, 90, 0));
+                    GameObject wall = Instantiate(wallPrefab, pos + Vector3.right * 0.5f, Quaternion.Euler(0, 90, 0));
+                    wall.transform.SetParent(mazeParent.transform);
                 }
 
             }
         }
     }
 
-    void PrintGrid()
+    void AdjustCamera()
     {
-        for (int y = 0; y < height; y++)
+        if (mainCamera != null)
         {
-            string row = "";
-            for (int x = 0; x < width; x++)
-            {
-                row += grid[x, y].visited ? "V " : ". ";
-            }
-            Debug.Log(row);
+            float mazeWidth = width;
+            float mazeHeight = height;
+
+            //position camera at center of maze
+            mainCamera.transform.position = new Vector3(mazeWidth / 2f, Mathf.Max(mazeWidth, mazeHeight), mazeHeight / 2f);
+
+            //adjust camera ortographic size to fit maze
+            mainCamera.orthographic = true;
+            mainCamera.orthographicSize = Mathf.Max(mazeWidth, mazeHeight) / 2 + 1;//added padding 
         }
+    }
+
+    public void RestartMaze()
+    {
+        if (mazeParent != null)
+        {
+            Destroy(mazeParent);
+        }
+        InitialGrid();
+        GenerateMaze();
+        DrawMaze();
+        AdjustCamera();
     }
 }
