@@ -12,6 +12,7 @@ public class MazeGenerator : MonoBehaviour
     private GameObject mazeParent;
     public GameObject wallPrefab;
     public GameObject floorPrefab;
+    public GameObject playerPrefab;
     public Camera mainCamera;
     private Cell[,] grid;
 
@@ -130,6 +131,9 @@ public class MazeGenerator : MonoBehaviour
             Destroy(mazeParent);
         }
 
+        //destroy player
+        GameObject playerInstance = null;
+
         mazeParent = new GameObject("Maze");
 
         grid[startPoint.x, startPoint.y].leftWall = false;  // Open the left wall at the start
@@ -147,26 +151,37 @@ public class MazeGenerator : MonoBehaviour
 
                 if (grid[x, y].topWall == true)
                 {
-                    GameObject wall = Instantiate(wallPrefab, pos + Vector3.forward * 0.5f, Quaternion.identity);
+                    GameObject wall = Instantiate(wallPrefab, pos + Vector3.forward * 0.5f + Vector3.up * 0.5f, Quaternion.identity);
                     wall.transform.SetParent(mazeParent.transform);
                 }
                 if (grid[x, y].bottomWall == true)
                 {
-                    GameObject wall = Instantiate(wallPrefab, pos - Vector3.forward * 0.5f, Quaternion.identity);
+                    GameObject wall = Instantiate(wallPrefab, pos - Vector3.forward * 0.5f + Vector3.up * 0.5f, Quaternion.identity);
                     wall.transform.SetParent(mazeParent.transform);
                 }
                 if (grid[x, y].leftWall == true)
                 {
-                    GameObject wall = Instantiate(wallPrefab, pos - Vector3.right * 0.5f, Quaternion.Euler(0, 90, 0));
+                    GameObject wall = Instantiate(wallPrefab, pos - Vector3.right * 0.5f + Vector3.up * 0.5f, Quaternion.Euler(0, 90, 0));
                     wall.transform.SetParent(mazeParent.transform);
                 }
                 if (grid[x, y].rightWall == true)
                 {
-                    GameObject wall = Instantiate(wallPrefab, pos + Vector3.right * 0.5f, Quaternion.Euler(0, 90, 0));
+                    GameObject wall = Instantiate(wallPrefab, pos + Vector3.right * 0.5f + Vector3.up * 0.5f, Quaternion.Euler(0, 90, 0));
                     wall.transform.SetParent(mazeParent.transform);
                 }
 
+                //place player in the top at the starting position
+                if (x == 0 && y == 0 && playerPrefab != null)
+                {
+                    playerInstance = Instantiate(playerPrefab, pos + Vector3.up * 1f, Quaternion.identity);
+                    playerInstance.transform.SetParent(mazeParent.transform);
+                }
             }
+        }
+
+        if (playerInstance == null)
+        {
+            Debug.LogError("Player prefab not assigned or failed to spawn.");
         }
     }
 

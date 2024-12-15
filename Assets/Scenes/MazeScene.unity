@@ -693,7 +693,7 @@ GameObject:
   - component: {fileID: 1065978477}
   - component: {fileID: 1065978476}
   m_Layer: 5
-  m_Name: UI
+  m_Name: UI Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -895,6 +895,8 @@ MonoBehaviour:
   height: 20
   wallPrefab: {fileID: 3887256331686447891, guid: ee42c9cc03d325640a9b866b4e2de64c, type: 3}
   floorPrefab: {fileID: 1911182635756691828, guid: 935fd1d2a97e1e24e89bb6d565fc38e6, type: 3}
+  playerPrefab: {fileID: 4949827793067202000, guid: 276fd5bcdebc70046b85235b1a407882, type: 3}
+  mainCamera: {fileID: 454805395}
 --- !u!4 &1579961873
 Transform:
   m_ObjectHideFlags: 0
@@ -1398,7 +1400,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1952689968}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
