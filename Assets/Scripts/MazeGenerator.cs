@@ -9,11 +9,15 @@ public class MazeGenerator : MonoBehaviour
     public int width = 10; //for now predefined, changeable later
     public int height = 10;
 
+    public bool firstPersonMode = false;
+
     private GameObject mazeParent;
     public GameObject wallPrefab;
     public GameObject floorPrefab;
     public GameObject playerPrefab;
+    public GameObject playerFirstPersonPrefab;
     public Camera mainCamera;
+    public Camera firstPersonCamera;
     private Cell[,] grid;
 
     private Vector2Int startPoint;
@@ -24,6 +28,7 @@ public class MazeGenerator : MonoBehaviour
         InitialGrid();
         GenerateMaze();
         DrawMaze();
+        AdjustCamera();
     }
 
     void InitialGrid()
@@ -136,7 +141,7 @@ public class MazeGenerator : MonoBehaviour
 
         mazeParent = new GameObject("Maze");
 
-        grid[startPoint.x, startPoint.y].leftWall = false;  // Open the left wall at the start
+        //grid[startPoint.x, startPoint.y].leftWall = false;  // Open the left wall at the start
         grid[endPoint.x, endPoint.y].rightWall = false;    // Open the right wall at the end
 
 
@@ -171,10 +176,20 @@ public class MazeGenerator : MonoBehaviour
                 }
 
                 //place player in the top at the starting position
-                if (x == 0 && y == 0 && playerPrefab != null)
+                if (x == 0 && y == 0 && playerPrefab != null && playerFirstPersonPrefab != null)
                 {
-                    playerInstance = Instantiate(playerPrefab, pos + Vector3.up * 1f, Quaternion.identity);
-                    playerInstance.transform.SetParent(mazeParent.transform);
+                    //check what player mode we are in.
+                    if (firstPersonMode == true)
+                    {
+                        playerInstance = Instantiate(playerFirstPersonPrefab, pos + Vector3.up * 1f, Quaternion.identity);
+                        playerInstance.transform.SetParent(mazeParent.transform);
+                    }
+                    else
+                    {
+                        playerInstance = Instantiate(playerPrefab, pos + Vector3.up * 1f, Quaternion.identity);
+                        playerInstance.transform.SetParent(mazeParent.transform);
+                    }
+
                 }
             }
         }
