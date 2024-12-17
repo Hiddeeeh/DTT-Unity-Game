@@ -14,8 +14,7 @@ public class MazeGenerator : MonoBehaviour
     private GameObject mazeParent;
     public GameObject wallPrefab;
     public GameObject floorPrefab;
-    public GameObject playerPrefab;
-    public GameObject playerFirstPersonPrefab;
+    public GameObject player;
     public Camera mainCamera;
     public Camera firstPersonCamera;
     private Cell[,] grid;
@@ -136,9 +135,6 @@ public class MazeGenerator : MonoBehaviour
             Destroy(mazeParent);
         }
 
-        //destroy player
-        GameObject playerInstance = null;
-
         mazeParent = new GameObject("Maze");
 
         //grid[startPoint.x, startPoint.y].leftWall = false;  // Open the left wall at the start
@@ -174,30 +170,23 @@ public class MazeGenerator : MonoBehaviour
                     GameObject wall = Instantiate(wallPrefab, pos + Vector3.right * 0.5f + Vector3.up * 0.5f, Quaternion.Euler(0, 90, 0));
                     wall.transform.SetParent(mazeParent.transform);
                 }
-
-                //place player in the top at the starting position
-                if (x == 0 && y == 0 && playerPrefab != null && playerFirstPersonPrefab != null)
-                {
-                    //check what player mode we are in.
-                    if (firstPersonMode == true)
-                    {
-                        playerInstance = Instantiate(playerFirstPersonPrefab, pos + Vector3.up * 1f, Quaternion.identity);
-                        playerInstance.transform.SetParent(mazeParent.transform);
-                    }
-                    else
-                    {
-                        playerInstance = Instantiate(playerPrefab, pos + Vector3.up * 1f, Quaternion.identity);
-                        playerInstance.transform.SetParent(mazeParent.transform);
-                    }
-
-                }
             }
         }
 
-        if (playerInstance == null)
+        if (player != null)
         {
-            Debug.LogError("Player prefab not assigned or failed to spawn.");
+            PositionPlayer();
         }
+        else
+        {
+            Debug.LogError("Player missing");
+        }
+    }
+
+    void PositionPlayer()
+    {
+        player.transform.position = new Vector3(0f, 1f, 0f);
+        player.transform.localRotation = Quaternion.Euler(0, 0, 0);
     }
 
     void AdjustCamera()
@@ -215,6 +204,7 @@ public class MazeGenerator : MonoBehaviour
             mainCamera.orthographicSize = Mathf.Max(mazeWidth, mazeHeight) / 2 + 1;//added padding 
         }
     }
+
 
     public void RestartMaze()
     {
