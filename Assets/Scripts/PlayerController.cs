@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerControler : MonoBehaviour
 {
+    //Give the player base movementspeed and mouseSensitivitity
     public float moveSpeed = 5f;
     public float mouseSensitivity = 100f;
 
@@ -12,7 +13,7 @@ public class PlayerControler : MonoBehaviour
 
     void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
+        //define the playerCamera based on the player gameobject
         playerCamera = GetComponentInChildren<Camera>();
     }
 

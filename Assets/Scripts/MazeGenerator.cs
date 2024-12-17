@@ -6,24 +6,25 @@ using UnityEngine;
 public class MazeGenerator : MonoBehaviour
 {
     //define width and height grid
-    public int width = 10; //for now predefined, changeable later
+    public int width = 10; //for now predefined, changeable in the UI.
     public int height = 10;
 
-    public bool firstPersonMode = false;
-
+    //the mazeParent is a gameobject to house all the walls and floors, I do this so the Unity editor doesn't get cluttered.
     private GameObject mazeParent;
     public GameObject wallPrefab;
     public GameObject floorPrefab;
     public GameObject player;
     public Camera mainCamera;
     public Camera firstPersonCamera;
-    private Cell[,] grid;
 
+
+    private Cell[,] grid;
     private Vector2Int startPoint;
     private Vector2Int endPoint;
 
     void Start()
     {
+        //on start create a maze with predefined width and height.
         InitialGrid();
         GenerateMaze();
         DrawMaze();
@@ -54,6 +55,7 @@ public class MazeGenerator : MonoBehaviour
         Vector2Int current = startPoint;
         grid[current.x, current.y].visited = true;
 
+        //the algorithm goes into a loop until it has visited all the cells in the grid.
         do
         {
             List<Vector2Int> neighbors = GetUnvisitedNeighbors(current);
@@ -77,6 +79,7 @@ public class MazeGenerator : MonoBehaviour
 
     List<Vector2Int> GetUnvisitedNeighbors(Vector2Int cell)
     {
+        //check for unvisited neighbors and add them to the stack.
         List<Vector2Int> neighbors = new List<Vector2Int>();
         if (cell.x > 0 && !grid[cell.x - 1, cell.y].visited)
         {
@@ -99,6 +102,7 @@ public class MazeGenerator : MonoBehaviour
 
     void RemoveWallBetween(Vector2Int a, Vector2Int b)
     {
+        //remove walls between cells based on how they were aligned to the previous cell
         if (a.x == b.x) //vertically aligned
         {
             if (a.y > b.y) //a is below b
@@ -129,7 +133,7 @@ public class MazeGenerator : MonoBehaviour
 
     void DrawMaze()
     {
-        //destroy any existing parent object
+        //destroy any existing parent object (just to be shure).
         if (mazeParent != null)
         {
             Destroy(mazeParent);
@@ -173,6 +177,7 @@ public class MazeGenerator : MonoBehaviour
             }
         }
 
+        //check if there is a player gameobject
         if (player != null)
         {
             PositionPlayer();
@@ -185,6 +190,7 @@ public class MazeGenerator : MonoBehaviour
 
     void PositionPlayer()
     {
+        //puts the player in te "start" position, and sets rotation to "normal"
         player.transform.position = new Vector3(0f, 1f, 0f);
         player.transform.localRotation = Quaternion.Euler(0, 0, 0);
     }
@@ -210,6 +216,7 @@ public class MazeGenerator : MonoBehaviour
     {
         if (mazeParent != null)
         {
+            //Destroy the previously drawn maze.
             Destroy(mazeParent);
         }
         InitialGrid();
